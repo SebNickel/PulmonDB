@@ -207,35 +207,37 @@ annotationPulmonDB = function(id,output = "contrast"){
   ref = as.data.frame(ref)
   ref = anno.names(ref)
 
-  data_anno = sapply(colnames(ref),
-                     function(x) paste(con[,x],ref[,x],sep = "_vs_"))
-  data_anno <- data.frame(data_anno)
-  data_anno[,'gsm'] <- rownames(ref)
-  gse_gpl <- unique(
-    anno_ref[,c("contrast_name","experiment_access_id","platform_name")])
+  if (output == "contrast") { 
 
-  gse_gpl <- as_tibble(gse_gpl) %>%
-    dplyr::group_by(contrast_name) %>%
-    suppressMessages(dplyr::summarise(dplyr::first(platform_name), dplyr::first(experiment_access_id)))
+      data_anno = sapply(colnames(ref),
+                         function(x) paste(con[,x],ref[,x],sep = "_vs_"))
+      data_anno <- data.frame(data_anno)
+      data_anno[,'gsm'] <- rownames(ref)
+      gse_gpl <- unique(
+        anno_ref[,c("contrast_name","experiment_access_id","platform_name")])
 
-  data_anno <- merge(data_anno,gse_gpl,by.x="gsm",by.y="contrast_name")
-  rownames(data_anno) <- data_anno[,"gsm"]
-  data_anno <- data_anno[,-1]
-  colnames(data_anno)[ncol(data_anno)] <- "GSE"
-  colnames(data_anno)[ncol(data_anno)-1] <- "PLATFORM"
+      gse_gpl <- as_tibble(gse_gpl) %>%
+        dplyr::group_by(contrast_name) %>%
+        suppressMessages(dplyr::summarise(dplyr::first(platform_name), dplyr::first(experiment_access_id)))
+      data_anno <- merge(data_anno,gse_gpl,by.x="gsm",by.y="contrast_name")
+      rownames(data_anno) <- data_anno[,"gsm"]
+      data_anno <- data_anno[,-1]
+      colnames(data_anno)[ncol(data_anno)] <- "GSE"
+      colnames(data_anno)[ncol(data_anno)-1] <- "PLATFORM"
 
-  message("Time of processing ",Sys.time()-a)
-  message("Annotation downloaded")
-  ids = paste(id, collapse = " , ")
-  message(paste(length(id),"GSE:",ids))
-  cn <- paste(colnames(data_anno),collapse = " , ")
-  message(paste(dim(data_anno)[2],"Features annotated:",cn))
-
-
-    if (output == "contrast") {
+      message("Time of processing ",Sys.time()-a)
+      message("Annotation downloaded")
+      ids = paste(id, collapse = " , ")
+      message(paste(length(id),"GSE:",ids))
+      cn <- paste(colnames(data_anno),collapse = " , ")
+      message(paste(dim(data_anno)[2],"Features annotated:",cn))
       message(paste(dim(data_anno)[1],"Contrasts"))
-      return(data_anno)}
-    if (output == "sample") {
+
+      return(data_anno)
+
+  }
+
+  if (output == "sample") {
 
       rownames(con) = stringr::str_extract(rownames(con),"GSM[0-9]*")
       rownames(ref) = stringr::str_extract(stringr::str_extract(rownames(ref),"-GSM[0-9]*"),"GSM[0-9]*")
@@ -246,9 +248,9 @@ annotationPulmonDB = function(id,output = "contrast"){
       data_anno = rbind(con,ref)
 
       message(paste(dim(data_anno)[1],"Samples"))
-      return(data_anno)}
-
-
+      return(data_anno)
+  
+  }
 
 }
 
