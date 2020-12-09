@@ -43,6 +43,21 @@
 #' @family pulmonDB
 
 annotationPulmonDB = function(id,output = "contrast"){
+
+  # Throw Error if an invalid value is passed to the `output` argument.
+  valid_output_values <- c("contrast", "sample")
+
+  if (!(output %in% valid_output_values)) {
+
+    valid_values_string <- paste('"', paste(valid_output_values, collapse='", "'), '".', sep='')
+    error_message <- paste('Invalid value "', output, '" passed to `output` argument. ',
+                           'Valid values are: ', valid_values_string, 
+                           sep="")
+
+    stop(error_message)
+
+  }
+
   #message("Connecting to PulmonDB")
   a <- Sys.time()
 
